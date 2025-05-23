@@ -12,18 +12,18 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("carrito", JSON.stringify(carrito));
   }, [carrito]);
 
-  const agregarAlCarrito = (producto) => {
-    setCarrito((prev) => {
-      const existe = prev.find((p) => p.idproducto === producto.idproducto);
-      if (existe) {
-        return prev.map((p) =>
-          p.idproducto === producto.idproducto
-            ? { ...p, cantidad: p.cantidad + 1 }
-            : p
-        );
-      }
-      return [...prev, { ...producto, cantidad: 1 }];
-    });
+ const agregarAlCarrito = (producto) => {
+  setCarrito((prev) => {
+    const existe = prev.find((p) => p.idproducto === producto.idproducto);
+    if (existe) {
+      return prev.map((p) =>
+        p.idproducto === producto.idproducto
+          ? { ...p, cantidad: p.cantidad + producto.cantidad }  // Suma la cantidad que venga en producto
+          : p
+      );
+    }
+    return [...prev, { ...producto }];  // Ya viene con cantidad, no forzar a 1
+  });
   };
 
   const cantidadTotal = carrito.reduce((sum, item) => sum + item.cantidad, 0);

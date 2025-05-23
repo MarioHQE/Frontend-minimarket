@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";  // <-- agrega useNavigate
 
 const Carrito = () => {
   const { carrito, setCarrito } = useContext(CartContext);
+  const navigate = useNavigate();  // <-- inicializa navigate
 
   const incrementar = (id) => {
     const nuevo = carrito.map((item) =>
@@ -32,6 +33,14 @@ const Carrito = () => {
     (sum, item) => sum + item.precio * item.cantidad,
     0
   );
+
+  const handleFinalizar = () => {
+    if (carrito.length === 0) {
+      alert("Tu carrito está vacío");
+      return;
+    }
+    navigate("/checkout");  // <-- navega a checkout
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -97,7 +106,10 @@ const Carrito = () => {
             <h2 className="text-2xl font-semibold text-gray-800">
               Total: <span className="text-purple-600">S/ {total.toFixed(2)}</span>
             </h2>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition">
+            <button
+              onClick={handleFinalizar}  // <--- aquí agregamos el evento
+              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+            >
               Finalizar compra
             </button>
           </div>
