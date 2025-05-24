@@ -1,11 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // 👈 importar el contexto
+import { useAuth } from "../context/AuthContext"; 
 
 const MiCuenta = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // 👈 usar login desde el contexto
+  const { login } = useAuth(); 
   const [modo, setModo] = useState("login");
   const [form, setForm] = useState({
     nombre: "",
@@ -35,7 +35,7 @@ const MiCuenta = () => {
           return;
         }
 
-        login(token); // 👈 guardar el usuario globalmente desde el contexto
+        login(token); 
 
         const roles = JSON.parse(localStorage.getItem("roles")) || [];
 

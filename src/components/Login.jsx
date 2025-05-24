@@ -2,7 +2,8 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance"; // Asumo que tienes axios configurado así
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+
 
 const Login = () => {
   const { login } = useContext(AuthContext);

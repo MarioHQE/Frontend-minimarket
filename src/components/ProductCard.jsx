@@ -1,4 +1,3 @@
-// ProductCard.jsx
 import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 

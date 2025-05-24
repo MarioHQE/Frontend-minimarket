@@ -87,14 +87,13 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Solo mostrar "Mi cuenta" si NO está logueado */}
+
           {!usuario && (
             <Link to="/mi-cuenta" className="hover:text-purple-600 font-medium">
               Mi cuenta
             </Link>
           )}
 
-          {/* Dropdown usuario solo si está logueado */}
           {usuario && (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -142,6 +141,7 @@ const Navbar = () => {
               )}
             </div>
           )}
+
 
           {/* Carrito */}
           <Link
