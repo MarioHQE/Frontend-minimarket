@@ -41,8 +41,7 @@ const MiCuenta = () => {
 
         alert("Inicio de sesión exitoso");
 
-        // Redirigir
-        if (roles.includes("ROLE_ADMIN")) {
+          if (roles.includes("ROLE_ADMIN")) {
           navigate("/admin/dashboard");
         } else {
           navigate("/productos");

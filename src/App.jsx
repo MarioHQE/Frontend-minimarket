@@ -14,7 +14,8 @@ import AdminLayout from "./layouts/AdminLayout";
 
 // Páginas públicas
 import Home from "./pages/Home";
-import Products from "./pages/Products";
+import Products from "./pages/Products"; 
+import ProductList from "./components/ProductList"; 
 import Carrito from "./pages/Carrito";
 import Sucursales from "./pages/Sucursales";
 import Login from "./components/Login";
@@ -45,7 +46,6 @@ function RutaPrivada({ children, rolRequerido }) {
   return children;
 }
 
-// Layout para cliente (no admin)
 function ClienteLayout() {
   const location = useLocation();
   const esRutaAdmin = location.pathname.startsWith("/admin");
@@ -65,7 +65,8 @@ function App() {
           {/* Rutas públicas */}
           <Route element={<ClienteLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/productos" element={<Products />} />
+            {/* Usa solo ProductList en /productos */}
+            <Route path="/productos" element={<ProductList />} />
             <Route path="/carrito" element={<Carrito />} />
             <Route path="/sucursales" element={<Sucursales />} />
             <Route path="/login" element={<Login />} />

@@ -26,7 +26,7 @@ const Usuarios = () => {
     const confirm = window.confirm("¿Eliminar este usuario?");
     if (!confirm) return;
     try {
-      await api.delete(`/usuario/delete/${id}`); // Ajusta según tu API real
+      await api.delete(`/usuario/delete/${id}`); 
       alert("Usuario eliminado correctamente.");
       fetchUsuarios();
     } catch (error) {

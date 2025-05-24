@@ -1,31 +1,27 @@
-import { useContext } from "react";
+// Versión mejorada de Carrito.jsx sin lógica de stock en incremento
+import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const Carrito = () => {
   const { carrito, setCarrito } = useContext(CartContext);
   const navigate = useNavigate();
+  const [procesando, setProcesando] = useState(false);
 
-  const incrementar = (id) => {
+  const incrementar = (idProductoSucursal) => {
     const actualizado = carrito.map((item) => {
-      if (item.idproducto === id) {
-        // Aumenta solo si la cantidad es menor que el stock disponible
-        if (item.cantidad < (item.stock || 0)) {
-          return { ...item, cantidad: item.cantidad + 1 };
-        } else {
-          alert(`No hay más stock disponible para ${item.nombre}`);
-          return item;
-        }
+      if (item.idProductoSucursal === idProductoSucursal) {
+        return { ...item, cantidad: item.cantidad + 1 };
       }
       return item;
     });
     setCarrito(actualizado);
   };
 
-  const disminuir = (id) => {
+  const disminuir = (idProductoSucursal) => {
     const actualizado = carrito
       .map((item) =>
-        item.idproducto === id && item.cantidad > 1
+        item.idProductoSucursal === idProductoSucursal && item.cantidad > 1
           ? { ...item, cantidad: item.cantidad - 1 }
           : item
       )
@@ -33,8 +29,10 @@ const Carrito = () => {
     setCarrito(actualizado);
   };
 
-  const eliminar = (id) => {
-    const filtrado = carrito.filter((item) => item.idproducto !== id);
+  const eliminar = (idProductoSucursal) => {
+    const filtrado = carrito.filter(
+      (item) => item.idProductoSucursal !== idProductoSucursal
+    );
     setCarrito(filtrado);
   };
 
@@ -44,6 +42,8 @@ const Carrito = () => {
   );
 
   const handleFinalizar = async () => {
+    if (procesando) return;
+
     if (carrito.length === 0) {
       alert("Tu carrito está vacío.");
       return;
@@ -56,20 +56,16 @@ const Carrito = () => {
       return;
     }
 
-    // Validar que todos tengan idproducto (en vez de idproductosucursal)
     for (const p of carrito) {
-      if (!p.idproducto) {
-        alert(`Producto sin idproducto: ${p.nombre || "Sin nombre"}`);
-        console.log("Producto sin idproducto:", p);
-        return;
-      }
-      if ((p.stock || 0) < p.cantidad) {
-        alert(`No hay suficiente stock para el producto: ${p.nombre}`);
+      if (!p.idProductoSucursal) {
+        alert(`Falta el idProductoSucursal para: ${p.nombre}`);
         return;
       }
     }
 
     try {
+      setProcesando(true);
+
       const pedido = {
         nombre: "Cliente",
         apellido: "Ejemplo",
@@ -79,7 +75,7 @@ const Carrito = () => {
         fechaderecojo: null,
         fechapago: null,
         productos: carrito.map((item) => ({
-          idProductoSucursal: item.idproducto, // Aquí mandamos idproducto como idProductoSucursal
+          idProductoSucursal: item.idProductoSucursal,
           cantidad: item.cantidad,
         })),
         local: "Sucursal Central",
@@ -107,16 +103,25 @@ const Carrito = () => {
         }
       );
 
-      if (!pagoResponse.ok) throw new Error("Error al obtener URL de Stripe");
+      if (!pagoResponse.ok) {
+        const texto = await pagoResponse.text();
+        console.error("Respuesta de pago fallida:", texto);
+        throw new Error("Error al obtener URL de Stripe");
+      }
 
       const urlPago = await pagoResponse.text();
-      if (!urlPago.startsWith("http"))
+
+      if (!urlPago.startsWith("http")) {
+        console.error("URL recibida no válida:", urlPago);
         throw new Error("URL inválida de Stripe");
+      }
 
       window.location.href = urlPago;
     } catch (error) {
       console.error("Error al procesar la compra:", error);
-      alert("Ocurrió un error. Revisa la consola.");
+      alert("Ocurrió un error al procesar la compra.");
+    } finally {
+      setProcesando(false);
     }
   };
 
@@ -146,51 +151,40 @@ const Carrito = () => {
                   <th className="p-4">Precio</th>
                   <th className="p-4">Cantidad</th>
                   <th className="p-4">Subtotal</th>
-                  <th className="p-4">Stock</th> {/* Nueva columna */}
                   <th className="p-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {carrito.map((item) => (
                   <tr
-                    key={item.idproducto}
-                    className={`border-b hover:bg-gray-50 transition ${
-                      item.stock === 0 ? "bg-red-100" : ""
-                    }`}
+                    key={item.idProductoSucursal}
+                    className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="p-4 font-medium text-gray-800">{item.nombre}</td>
-                    <td className="p-4 text-gray-600">S/ {item.precio.toFixed(2)}</td>
+                    <td className="p-4 font-medium text-gray-800">
+                      {item.nombre}
+                    </td>
+                    <td className="p-4 text-gray-600">
+                      S/ {item.precio.toFixed(2)}
+                    </td>
                     <td className="p-4 text-center">{item.cantidad}</td>
                     <td className="p-4 font-semibold text-purple-600">
                       S/ {(item.precio * item.cantidad).toFixed(2)}
                     </td>
-                    <td className="p-4 text-center">
-                      {item.stock > 0 ? (
-                        <span className="text-green-600 font-semibold">{item.stock}</span>
-                      ) : (
-                        <span className="text-red-600 font-semibold">Agotado</span>
-                      )}
-                    </td>
                     <td className="p-4 flex justify-center gap-2">
                       <button
-                        onClick={() => incrementar(item.idproducto)}
-                        disabled={item.cantidad >= item.stock}
-                        className={`px-3 py-1 rounded text-white ${
-                          item.cantidad >= item.stock
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-purple-500 hover:bg-purple-600"
-                        }`}
+                        onClick={() => incrementar(item.idProductoSucursal)}
+                        className="px-3 py-1 rounded text-white bg-purple-500 hover:bg-purple-600"
                       >
                         +
                       </button>
                       <button
-                        onClick={() => disminuir(item.idproducto)}
+                        onClick={() => disminuir(item.idProductoSucursal)}
                         className="bg-purple-200 hover:bg-purple-300 text-purple-800 px-3 py-1 rounded"
                       >
                         −
                       </button>
                       <button
-                        onClick={() => eliminar(item.idproducto)}
+                        onClick={() => eliminar(item.idProductoSucursal)}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                       >
                         Eliminar
@@ -209,9 +203,14 @@ const Carrito = () => {
 
             <button
               onClick={handleFinalizar}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition"
+              disabled={procesando}
+              className={`${
+                procesando
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-purple-600 hover:bg-purple-700"
+              } text-white font-bold py-3 px-8 rounded-full shadow-lg transition`}
             >
-              Finalizar compra
+              {procesando ? "Procesando..." : "Finalizar compra"}
             </button>
           </div>
         </>
