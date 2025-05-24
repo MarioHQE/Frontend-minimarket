@@ -18,11 +18,11 @@ export const CartProvider = ({ children }) => {
     if (existe) {
       return prev.map((p) =>
         p.idproducto === producto.idproducto
-          ? { ...p, cantidad: p.cantidad + producto.cantidad }  // Suma la cantidad que venga en producto
+          ? { ...p, cantidad: p.cantidad + producto.cantidad }  
           : p
       );
     }
-    return [...prev, { ...producto }];  // Ya viene con cantidad, no forzar a 1
+    return [...prev, { ...producto }];  
   });
   };
 

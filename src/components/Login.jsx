@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axiosInstance"; // Asumo que tienes axios configurado así
+import jwtDecode from "jwt-decode";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -11,8 +13,23 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(credenciales);
-      navigate("/"); // redirigir a home
+      // Petición para obtener el token del backend
+      const response = await api.post("/usuario/login", credenciales);
+      const token = response.data.token;
+
+      // Guardar token y usuario en contexto
+      login(token);
+
+      // Decodificar para obtener roles
+      const decoded = jwtDecode(token);
+      const roles = decoded.rol.map(r => r.authority);
+
+      // Redirigir según rol
+      if (roles.includes("ROLE_ADMIN")) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch {
       setError("Usuario o contraseña inválidos");
     }

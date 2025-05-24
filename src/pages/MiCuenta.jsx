@@ -1,9 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // 👈 importar el contexto
 
 const MiCuenta = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // 👈 usar login desde el contexto
   const [modo, setModo] = useState("login");
   const [form, setForm] = useState({
     nombre: "",
@@ -27,24 +29,23 @@ const MiCuenta = () => {
           password: form.password,
         });
 
-        console.log("Respuesta login:", res.data);
-
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
-        } else {
+        const { token } = res.data;
+        if (!token) {
           alert("No se recibió token en la respuesta");
           return;
         }
 
-        const roles = res.data.roles || [];
-        localStorage.setItem("roles", JSON.stringify(roles));
+        login(token); // 👈 guardar el usuario globalmente desde el contexto
+
+        const roles = JSON.parse(localStorage.getItem("roles")) || [];
 
         alert("Inicio de sesión exitoso");
 
+        // Redirigir
         if (roles.includes("ROLE_ADMIN")) {
-          window.location.href = "/admin/dashboard";
+          navigate("/admin/dashboard");
         } else {
-          window.location.href = "/";
+          navigate("/productos");
         }
       } else {
         await axios.post("http://localhost:3600/api/usuario/signup", form);

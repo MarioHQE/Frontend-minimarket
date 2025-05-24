@@ -1,51 +1,37 @@
-// src/context/AuthContext.jsx
-import { createContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
-
-export const AuthContext = createContext();
+export const AuthContext = createContext(); // ✅ named export
 
 export const AuthProvider = ({ children }) => {
-  const [usuario, setUsuario] = useState(() => {
-    const data = localStorage.getItem("usuario");
-    return data ? JSON.parse(data) : null;
-  });
+  const [usuario, setUsuario] = useState(null);
 
-  const login = async (credenciales) => {
-    const response = await fetch("http://localhost:3600/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credenciales),
-    });
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      const roles = decoded.rol.map(r => r.authority);
+      setUsuario({ email: decoded.email, roles });
+    }
+  }, []);
 
-    if (!response.ok) throw new Error("Credenciales inválidas");
-
-    const data = await response.json();
-    setUsuario(data);
-    localStorage.setItem("usuario", JSON.stringify(data));
+  const login = (token) => {
+    localStorage.setItem("token", token);
+    const decoded = jwtDecode(token);
+    const roles = decoded.rol.map(r => r.authority);
+    setUsuario({ email: decoded.email, roles });
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setUsuario(null);
-    localStorage.removeItem("usuario");
-  };
-
-  const register = async (nuevoUsuario) => {
-    const response = await fetch("http://localhost:3600/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuevoUsuario),
-    });
-
-    if (!response.ok) throw new Error("No se pudo registrar");
-
-    const data = await response.json();
-    setUsuario(data);
-    localStorage.setItem("usuario", JSON.stringify(data));
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, register }}>
+    <AuthContext.Provider value={{ usuario, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext); // opcional
