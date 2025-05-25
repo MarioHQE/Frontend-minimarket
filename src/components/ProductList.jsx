@@ -6,12 +6,11 @@ const ProductList = () => {
   const [cargando, setCargando] = useState(true);
 
   // Cambia este ID por el de tu sucursal real
-  const idSucursal = 1;
 
   useEffect(() => {
     const obtenerProductos = async () => {
       try {
-        const res = await fetch(`http://localhost:3600/productosucursal/sucursal/${idSucursal}`);
+        const res = await fetch(`http://localhost:3600/producto/all`);
         const data = await res.json();
         setProductos(data);
       } catch (error) {
@@ -35,7 +34,7 @@ const ProductList = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {productos.map((p) => (
-            <ProductCard key={p.idProductoSucursal} productosucursal={p} />
+            <ProductCard key={p.idproducto} producto={p} />
           ))}
         </div>
       )}

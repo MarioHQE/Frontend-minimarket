@@ -111,6 +111,7 @@ const Carrito = () => {
         throw new Error("Error al obtener URL de Stripe");
       }
 
+
       const urlPago = await pagoResponse.json().then((data) => data);
 
       if (!urlPago.startsWith("https")) {
@@ -118,7 +119,9 @@ const Carrito = () => {
         throw new Error("URL inválida de Stripe");
       }
 
-      window.location.href = urlPago;
+      window.location.href = urlPago;     
+      setCarrito([]);
+
     } catch (error) {
       console.error("Error al procesar la compra:", error);
       alert("Ocurrió un error al procesar la compra.");
@@ -207,8 +210,8 @@ const Carrito = () => {
               onClick={handleFinalizar}
               disabled={procesando}
               className={`${procesando
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-purple-600 hover:bg-purple-700"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-purple-600 hover:bg-purple-700"
                 } text-white font-bold py-3 px-8 rounded-full shadow-lg transition`}
             >
               {procesando ? "Procesando..." : "Finalizar compra"}

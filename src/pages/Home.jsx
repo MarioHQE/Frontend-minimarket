@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Slider from "../components/Slider";
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/ProductSucursalCard";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import ProductSucursalCard from "../components/ProductSucursalCard";
 
 const Home = () => {
   const [sucursales, setSucursales] = useState([]);
@@ -68,7 +69,7 @@ const Home = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {productos.map((prodSuc) => (
-              <ProductCard
+              <ProductSucursalCard
                 key={prodSuc.idProductoSucursal}
                 productosucursal={prodSuc}
               />

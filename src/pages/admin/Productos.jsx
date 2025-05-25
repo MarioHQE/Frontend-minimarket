@@ -18,7 +18,7 @@ const Productos = () => {
   const fetchProductos = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/producto/all", { params: { param: "x" } });
+      const res = await api.get("/producto/all");
       setProductos(res.data);
     } catch (error) {
       console.error("Error cargando productos:", error);
@@ -62,9 +62,8 @@ const Productos = () => {
                   productos.map((p, i) => (
                     <tr
                       key={p.idproducto}
-                      className={`border-b hover:bg-purple-50 ${
-                        i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }`}
+                      className={`border-b hover:bg-purple-50 ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }`}
                     >
                       <td className="px-4 py-2">{p.idproducto}</td>
                       <td className="px-4 py-2">{p.nombre}</td>
